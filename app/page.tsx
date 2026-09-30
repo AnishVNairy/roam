@@ -7,7 +7,11 @@ import { PostFeed } from "@/components/post-feed";
 import type { Post, Profile } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
-type FeedPost = Post & { author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null };
+type FeedPost = Post & {
+  like_count: number;
+  liked_by_current_user: boolean;
+  author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null;
+};
 
 function LandingPage() {
   return <main className="relative min-h-screen overflow-hidden bg-paper">
@@ -72,8 +76,29 @@ export default async function Home() {
     authors = data ?? [];
   }
 
+  const postIds = rows.map((post) => post.id);
+  let likeSummaries: { post_id: string; like_count: number; liked_by_current_user: boolean }[] = [];
+  if (postIds.length) {
+    const { data, error } = await client.from("post_likes_summary")
+      .select("post_id, like_count, liked_by_current_user")
+      .in("post_id", postIds);
+    if (error) {
+      return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load likes for the home feed. Refresh to try again.</p></FeedFrame>;
+    }
+    likeSummaries = data ?? [];
+  }
+
   const authorById = new Map(authors.map((author) => [author.id, author]));
-  const feedPosts: FeedPost[] = rows.map((post) => ({ ...post, author: authorById.get(post.user_id) ?? null }));
+  const likeSummaryByPostId = new Map(likeSummaries.map((summary) => [summary.post_id, summary]));
+  const feedPosts: FeedPost[] = rows.map((post) => {
+    const likes = likeSummaryByPostId.get(post.id);
+    return {
+      ...post,
+      like_count: likes?.like_count ?? 0,
+      liked_by_current_user: likes?.liked_by_current_user ?? false,
+      author: authorById.get(post.user_id) ?? null,
+    };
+  });
 
   return <FeedFrame email={user.email}>
     <header className="mb-6">

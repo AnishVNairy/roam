@@ -1,9 +1,14 @@
 import { Compass, Image as ImageIcon, MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import { DeletePostButton } from "@/components/delete-post-button";
+import { LikeButton } from "@/components/like-button";
 import type { Post, Profile } from "@/lib/supabase/database.types";
 
-type FeedPost = Post & { author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null };
+type FeedPost = Post & {
+  like_count: number;
+  liked_by_current_user: boolean;
+  author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null;
+};
 
 function RiderAvatar({ author }: { author: FeedPost["author"] }) {
   const name = author?.display_name ?? "ROAM rider";
@@ -38,7 +43,10 @@ function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: stri
       </figure> : null}
       <footer className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-3">
         <span className="inline-flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-muted"><Compass size={13} aria-hidden="true" /> RIDER NOTE</span>
-        {post.user_id === currentUserId ? <DeletePostButton postId={post.id} /> : null}
+        <div className="ml-auto flex items-center gap-2">
+          <LikeButton postId={post.id} likeCount={post.like_count} isLiked={post.liked_by_current_user} />
+          {post.user_id === currentUserId ? <DeletePostButton postId={post.id} /> : null}
+        </div>
       </footer>
     </div>
   </article>;

@@ -28,6 +28,12 @@ export type Post = {
   created_at: string;
 };
 
+export type Like = {
+  post_id: string;
+  user_id: string;
+  created_at: string;
+};
+
 type TableDefinition<Row, Insert, Update> = {
   Row: Row;
   Insert: Insert;
@@ -55,8 +61,18 @@ export type Database = {
         Pick<Post, "user_id" | "caption"> & Partial<Pick<Post, "id" | "media_url" | "created_at">>,
         Partial<Pick<Post, "user_id" | "caption" | "media_url">>
       >;
+      likes: TableDefinition<
+        Like,
+        Pick<Like, "post_id" | "user_id"> & Partial<Pick<Like, "created_at">>,
+        never
+      >;
     };
-    Views: Record<string, never>;
+    Views: {
+      post_likes_summary: {
+        Row: { post_id: string; like_count: number; liked_by_current_user: boolean };
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

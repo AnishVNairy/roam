@@ -45,7 +45,7 @@ The visual language borrows from a well-used roadbook and the restrained instrum
 - **Usage scene:** Responsive phone-first feed and account flows riders may use between rides; favor readable posts, short forms, comfortable touch controls, and stable layouts.
 - **Register:** Hybrid public welcome page and focused social feed, create-post, account, and profile screens.
 - **Memorable signature:** A small copper route marker and the road-note metadata rail make each feed entry feel like a rider's log.
-- **Restraint:** Post content and rider identity stay prominent; avoid engagement mechanics and decoration outside this phase.
+- **Restraint:** Post content and rider identity stay prominent; limit engagement UI to the approved like interaction.
 - **Anti-references:** Generic SaaS dashboards, black-on-black racing motifs, faux maps, and hero stock photos.
 - **Token ownership/runtime mapping:** This file mirrors the canonical runtime tokens in `app/globals.css`; it does not generate CSS. Keep the frontmatter colors, radii, and font names aligned with CSS variables and Tailwind theme tokens there.
 
@@ -81,7 +81,7 @@ Petrol fill is reserved for the main action in a region; bordered white/paper bu
 
 ### Navigation and data display
 
-The public header offers sign-in and account creation. Signed-in navigation links to Home feed and Create post. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, and optional image; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
+The public header offers sign-in and account creation. Signed-in navigation links to Home feed and Create post. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, optional image, and a compact like control with its count; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
 
 ### Forms and overlays
 
@@ -103,5 +103,5 @@ Use warm, road-oriented language without claiming a route or ride exists before 
 
 - **Do:** Keep rider identity the visual anchor of profile screens.
 - **Do:** Use the same labeled field component and control geometry throughout account flows.
-- **Don't:** Add product areas outside the approved Phase 1 feature scope.
+- **Don't:** Add product areas outside the approved MVP feature scope.
 - **Don't:** use decorative map tiles, paid map branding, or remote stock motorcycle photography.
