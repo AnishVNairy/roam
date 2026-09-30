@@ -81,7 +81,7 @@ Petrol fill is reserved for the main action in a region; bordered white/paper bu
 
 ### Navigation and data display
 
-The public header offers sign-in and account creation. Signed-in navigation links to Home feed and Create post. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, optional image, and a compact like control with its count; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
+The public header offers sign-in and account creation. Signed-in navigation links to Home feed, Create post, and Profile; on narrow screens it occupies its own full-width row below the brand and account action. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, optional image, and a compact like control with its count; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
 
 ### Forms and overlays
 
