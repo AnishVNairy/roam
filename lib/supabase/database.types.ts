@@ -20,6 +20,14 @@ export type Motorcycle = {
   updated_at: string;
 };
 
+export type Post = {
+  id: string;
+  user_id: string;
+  caption: string;
+  media_url: string | null;
+  created_at: string;
+};
+
 type TableDefinition<Row, Insert, Update> = {
   Row: Row;
   Insert: Insert;
@@ -41,6 +49,11 @@ export type Database = {
         Pick<Motorcycle, "user_id" | "make" | "model"> &
           Partial<Omit<Motorcycle, "id" | "user_id" | "make" | "model">>,
         Partial<Omit<Motorcycle, "created_at" | "id" | "user_id">>
+      >;
+      posts: TableDefinition<
+        Post,
+        Pick<Post, "user_id" | "caption"> & Partial<Pick<Post, "id" | "media_url" | "created_at">>,
+        Partial<Pick<Post, "user_id" | "caption" | "media_url">>
       >;
     };
     Views: Record<string, never>;

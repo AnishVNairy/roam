@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: ROAM
-description: A social riding community for motorcycle riders, presented as a calm roadbook with precise rider-card forms.
+description: A social riding community for motorcycle riders, presented as a calm roadbook for rider profiles and chronological ride notes.
 colors:
   paper: "#F1F3F1"
   petrol: "#142C30"
@@ -39,13 +39,13 @@ The visual language borrows from a well-used roadbook and the restrained instrum
 
 ### Product context and register
 
-- **Audience and primary job:** Motorcycle riders creating a recognizable profile and adding the motorcycle they ride.
+- **Audience and primary job:** Motorcycle riders creating a recognizable profile and sharing short text and image updates from their riding lives.
 - **Target market(s) and evidence:** Not defined in the current product brief. Do not infer a regional market from the developer environment.
 - **Locale(s) and language policy:** English UI for the current MVP surface. Additional locale behavior is not defined.
-- **Usage scene:** Responsive phone-first profile and account flows that riders may use between rides; favor short forms, readable touch controls, and stable layouts.
-- **Register:** Hybrid public welcome page and focused account/profile utility screens.
-- **Memorable signature:** Copper signal marker and route-ring motif, echoed by the onboarding progress line.
-- **Restraint:** Forms and rider identity remain familiar and direct; decoration stays behind content.
+- **Usage scene:** Responsive phone-first feed and account flows riders may use between rides; favor readable posts, short forms, comfortable touch controls, and stable layouts.
+- **Register:** Hybrid public welcome page and focused social feed, create-post, account, and profile screens.
+- **Memorable signature:** A small copper route marker and the road-note metadata rail make each feed entry feel like a rider's log.
+- **Restraint:** Post content and rider identity stay prominent; avoid engagement mechanics and decoration outside this phase.
 - **Anti-references:** Generic SaaS dashboards, black-on-black racing motifs, faux maps, and hero stock photos.
 - **Token ownership/runtime mapping:** This file mirrors the canonical runtime tokens in `app/globals.css`; it does not generate CSS. Keep the frontmatter colors, radii, and font names aligned with CSS variables and Tailwind theme tokens there.
 
@@ -59,7 +59,7 @@ Geist Sans, loaded through Next's local framework font integration, carries inte
 
 ## Layout
 
-The public home and auth pages use generous horizontal breathing room and a two-panel composition on wide screens; narrow screens stack content. Profile content is capped at 75rem, and forms are capped near 48rem or narrower. Fields stack in one column, with only related motorcycle fields sharing a row at wider widths. Keep action placement stable while busy and errors appear inline. Use CSS responsive breakpoints already provided by Tailwind rather than a parallel breakpoint system.
+The public welcome and auth pages use generous horizontal breathing room and a two-panel composition on wide screens; narrow screens stack content. The signed-in feed and profile content use a centered reading column around 48rem wide. Feed posts stack vertically, with compact rider identity above a readable caption and optional full-width image. Create-post fields stack in one column. Keep action placement stable while busy and errors appear inline. Use CSS responsive breakpoints already provided by Tailwind rather than a parallel breakpoint system.
 
 ## Elevation & Depth
 
@@ -81,11 +81,11 @@ Petrol fill is reserved for the main action in a region; bordered white/paper bu
 
 ### Navigation and data display
 
-The public header offers sign-in and account creation. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. A rider card groups identity, location, bio, and motorcycles; no feed or ride-discovery interface is part of this phase.
+The public header offers sign-in and account creation. Signed-in navigation links to Home feed and Create post. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, and optional image; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
 
 ### Forms and overlays
 
-Use visible labels, native email/password/url semantics, persistent hints, inline field errors, and server-side validation. Password reveal is an explicitly labeled button. Avoid modal overlays for account setup and profile editing. Avatar input currently accepts an external http(s) URL; no image upload is exposed.
+Use visible labels, native email/password/url semantics, persistent hints, inline field errors, and server-side validation. Password reveal is an explicitly labeled button. Avoid modal overlays for account setup, post creation, and profile editing. Avatar and post media accept external http(s) URLs; no image upload is exposed.
 
 ### Iconography
 
@@ -97,7 +97,7 @@ Use short color and border transitions for hover/focus feedback only. Respect re
 
 ### Content and data visualization
 
-Use warm, road-oriented language without claiming a route or ride exists before data is available. Keep dates, counts, and charts out of this profile-only phase. Give actionable errors and describe exactly which step needs attention.
+Use warm, road-oriented language without claiming a route or ride exists before data is available. Show feed timestamps in the rider's locale, newest first. Keep engagement counts, recommendations, and charts out of this phase. Give actionable errors and describe exactly which step needs attention.
 
 ## Do's and Don'ts
 

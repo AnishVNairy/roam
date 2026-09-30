@@ -1,18 +1,15 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppHeader } from "@/components/app-header";
 import { Wordmark } from "@/components/brand";
-import { getPostAuthPath } from "@/lib/auth/routes";
+import { PostFeed } from "@/components/post-feed";
+import type { Post, Profile } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function Home() {
-  try {
-    const client = await createClient();
-    const { data: { user } } = await client.auth.getUser();
-    if (user) redirect(await getPostAuthPath(client, user.id));
-  } catch (error) {
-    if (error && typeof error === "object" && "digest" in error) throw error;
-  }
+type FeedPost = Post & { author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null };
 
+function LandingPage() {
   return <main className="relative min-h-screen overflow-hidden bg-paper">
     <div className="absolute inset-y-0 right-0 hidden w-[48%] bg-[radial-gradient(circle_at_75%_48%,rgba(196,95,59,0.28),transparent_15%),radial-gradient(circle_at_75%_48%,transparent_24%,rgba(255,255,255,0.12)_24.2%,transparent_24.7%),radial-gradient(circle_at_75%_48%,transparent_38%,rgba(255,255,255,0.1)_38.2%,transparent_38.6%),linear-gradient(145deg,#142c30,#29494a_62%,#82968a)] lg:block" aria-hidden="true" />
     <header className="relative z-10 mx-auto flex max-w-[1200px] items-center justify-between px-5 py-6 sm:px-8"><Wordmark /><nav className="flex items-center gap-3"><Link href="/login" className="rounded-control px-4 py-2.5 text-sm font-semibold text-petrol hover:bg-white">Sign in</Link><Link href="/signup" className="rounded-control bg-petrol px-4 py-2.5 text-sm font-semibold text-white hover:bg-petrol/90">Join ROAM</Link></nav></header>
@@ -21,4 +18,69 @@ export default async function Home() {
       <div className="relative mt-16 aspect-[4/3] max-w-xl rounded-panel border border-white/30 bg-[radial-gradient(circle_at_70%_50%,rgba(196,95,59,0.75),transparent_3%),radial-gradient(ellipse_at_70%_50%,transparent_31%,rgba(242,243,241,0.65)_31.3%,transparent_32%),radial-gradient(ellipse_at_70%_50%,transparent_42%,rgba(242,243,241,0.45)_42.3%,transparent_42.6%),linear-gradient(135deg,#29494a,#142c30_54%,#82968a)] shadow-[0_24px_60px_rgba(20,44,48,0.2)] lg:hidden" aria-hidden="true"><div className="absolute bottom-5 left-5 rounded-control border border-white/15 bg-petrol/70 px-4 py-3 font-mono text-[10px] tracking-[0.15em] text-white">THE ROAD IS BETTER SHARED</div></div>
     </section>
   </main>;
+}
+
+function FeedFrame({ email, children }: { email?: string | null; children: ReactNode }) {
+  return <main className="min-h-screen bg-paper"><AppHeader email={email} /><div className="mx-auto max-w-[760px] px-4 py-7 sm:px-8 sm:py-10">{children}</div></main>;
+}
+
+export default async function Home() {
+  let client;
+  try {
+    client = await createClient();
+  } catch {
+    return <LandingPage />;
+  }
+
+  let user;
+  try {
+    const { data } = await client.auth.getUser();
+    user = data.user;
+  } catch {
+    return <LandingPage />;
+  }
+  if (!user) return <LandingPage />;
+
+  const { data: rider, error: riderError } = await client.from("profiles")
+    .select("username, display_name")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (riderError) {
+    return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load your rider profile. Refresh to try again.</p></FeedFrame>;
+  }
+  if (!rider) redirect("/onboarding");
+
+  const { data: posts, error: postsError } = await client.from("posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(30);
+  if (postsError) {
+    return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load the home feed. Refresh to try again.</p></FeedFrame>;
+  }
+
+  const rows = posts ?? [];
+  const authorIds = [...new Set(rows.map((post) => post.user_id))];
+  let authors: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">[] = [];
+  if (authorIds.length) {
+    const { data, error } = await client.from("profiles")
+      .select("id, username, display_name, avatar_url")
+      .in("id", authorIds);
+    if (error) {
+      return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load rider details for the home feed. Refresh to try again.</p></FeedFrame>;
+    }
+    authors = data ?? [];
+  }
+
+  const authorById = new Map(authors.map((author) => [author.id, author]));
+  const feedPosts: FeedPost[] = rows.map((post) => ({ ...post, author: authorById.get(post.user_id) ?? null }));
+
+  return <FeedFrame email={user.email}>
+    <header className="mb-6">
+      <p className="font-mono text-[10px] font-semibold tracking-[0.18em] text-signal">LATEST FROM THE ROAD</p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-[-0.045em] text-ink">Home feed</h1>
+      <p className="mt-2 text-sm leading-6 text-muted">A chronological stream of moments shared by ROAM riders.</p>
+    </header>
+    <PostFeed posts={feedPosts} currentUserId={user.id} />
+  </FeedFrame>;
 }

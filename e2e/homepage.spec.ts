@@ -20,3 +20,9 @@ test("an unauthenticated visitor is redirected away from the profile", async ({ 
   await expect(page).toHaveURL(/\/login\?next=%2Fprofile$/);
   await expect(page.getByRole("heading", { name: "Pick up where you left off" })).toBeVisible();
 });
+
+test("creating a post sends unauthenticated visitors to sign in", async ({ page }) => {
+  await page.goto("/create-post");
+  await expect(page).toHaveURL(/\/login\?next=%2Fcreate-post$/);
+  await expect(page.getByRole("heading", { name: "Pick up where you left off" })).toBeVisible();
+});
