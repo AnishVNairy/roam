@@ -43,6 +43,33 @@ describe("LikeButton", () => {
     expect(submitted.get("postId")).toBe("post-1");
   });
 
+  it("uses the current like state across consecutive like and unlike cycles", async () => {
+    mockedLike.mockResolvedValue({ status: "success", message: "Post liked." });
+    mockedUnlike.mockResolvedValue({ status: "success", message: "Like removed." });
+    const renderLikeButton = (isLiked: boolean, likeCount: number) =>
+      render(<LikeButton postId="post-1" likeCount={likeCount} isLiked={isLiked} />);
+
+    const view = renderLikeButton(true, 1);
+    const states = [false, true, false, true, false];
+    let count = 1;
+
+    let currentLiked = true;
+    for (let index = 0; index < states.length; index += 1) {
+      const nextLiked = states[index];
+      fireEvent.click(screen.getByRole("button", { name: currentLiked ? "Unlike post" : "Like post" }));
+      const expectedCalls = states.slice(0, index + 1).filter((state) => state === nextLiked).length;
+      await waitFor(() => expect(currentLiked ? mockedUnlike : mockedLike).toHaveBeenCalledTimes(expectedCalls));
+      count += nextLiked ? 1 : -1;
+      view.rerender(<LikeButton postId="post-1" likeCount={count} isLiked={nextLiked} />);
+      expect(screen.getByRole("button", { name: nextLiked ? "Unlike post" : "Like post" }).textContent).toContain(String(count));
+      expect(screen.getByRole("button", { name: nextLiked ? "Unlike post" : "Like post" }).getAttribute("aria-pressed")).toBe(String(nextLiked));
+      currentLiked = nextLiked;
+    }
+
+    expect(mockedLike).toHaveBeenCalledTimes(2);
+    expect(mockedUnlike).toHaveBeenCalledTimes(3);
+  });
+
   it("disables the button while a like is pending", async () => {
     let finishLike!: (state: { status: "success"; message: string }) => void;
     mockedLike.mockReturnValue(new Promise((resolve) => { finishLike = resolve; }));

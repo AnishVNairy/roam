@@ -5,7 +5,7 @@ import { Heart } from "lucide-react";
 import { likePostAction, unlikePostAction } from "@/app/actions/likes";
 import { initialActionState } from "@/lib/forms";
 
-export function LikeButton({
+function LikeButtonAction({
   postId,
   likeCount,
   isLiked,
@@ -34,4 +34,8 @@ export function LikeButton({
     </form>
     {state.status === "error" && state.message ? <p role="alert" className="text-xs text-danger">{state.message}</p> : null}
   </div>;
+}
+
+export function LikeButton(props: { postId: string; likeCount: number; isLiked: boolean }) {
+  return <LikeButtonAction key={props.isLiked ? "liked" : "unliked"} {...props} />;
 }

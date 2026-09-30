@@ -5,12 +5,13 @@ import { PostFeed } from "@/components/post-feed";
 vi.mock("next/link", () => ({ default: ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => <a href={href} {...props}>{children}</a> }));
 vi.mock("@/app/actions/posts", () => ({ createPostAction: vi.fn(), deletePostAction: vi.fn() }));
 vi.mock("@/app/actions/likes", () => ({ likePostAction: vi.fn(), unlikePostAction: vi.fn() }));
+vi.mock("@/app/actions/comments", () => ({ createCommentAction: vi.fn(), deleteCommentAction: vi.fn() }));
 afterEach(cleanup);
 
 const post = {
   id: "post-1", user_id: "rider-1", caption: "Found a quiet road before sunrise.",
   media_url: null, created_at: "2026-09-30T07:30:00.000Z",
-  like_count: 0, liked_by_current_user: false,
+  like_count: 0, liked_by_current_user: false, comment_count: 2, comments: [],
   author: { username: "road_rider", display_name: "Road Rider", avatar_url: null },
 };
 
@@ -43,5 +44,11 @@ describe("PostFeed", () => {
     const likedButton = screen.getByRole("button", { name: "Unlike post" });
     expect(likedButton.textContent).toContain("7");
     expect(likedButton.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("shows the comment count beside the like count", () => {
+    render(<PostFeed posts={[post]} currentUserId="rider-1" />);
+
+    expect(screen.getByRole("img", { name: "2 comments" })).toBeDefined();
   });
 });

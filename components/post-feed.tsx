@@ -1,12 +1,17 @@
-import { Compass, Image as ImageIcon, MoveUpRight } from "lucide-react";
+import { Compass, Image as ImageIcon, MessageCircle, MoveUpRight } from "lucide-react";
 import Link from "next/link";
+import { CommentSection } from "@/components/comment-section";
 import { DeletePostButton } from "@/components/delete-post-button";
 import { LikeButton } from "@/components/like-button";
-import type { Post, Profile } from "@/lib/supabase/database.types";
+import type { Comment, Post, Profile } from "@/lib/supabase/database.types";
+
+type FeedComment = Comment & { author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null };
 
 type FeedPost = Post & {
   like_count: number;
   liked_by_current_user: boolean;
+  comment_count: number;
+  comments: FeedComment[];
   author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null;
 };
 
@@ -26,6 +31,7 @@ function formatPostTime(value: string) {
 }
 
 function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: string }) {
+  const commentLabel = `${post.comment_count} ${post.comment_count === 1 ? "comment" : "comments"}`;
   return <article className="overflow-hidden rounded-panel border border-line bg-white shadow-panel">
     <header className="flex items-center gap-3 px-4 py-4 sm:px-6">
       <RiderAvatar author={post.author} />
@@ -44,11 +50,13 @@ function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: stri
       <footer className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-3">
         <span className="inline-flex items-center gap-2 font-mono text-[9px] tracking-[0.14em] text-muted"><Compass size={13} aria-hidden="true" /> RIDER NOTE</span>
         <div className="ml-auto flex items-center gap-2">
+          <span role="img" aria-label={commentLabel} className="inline-flex min-h-10 items-center gap-2 rounded-control px-3 text-xs font-medium text-muted"><MessageCircle size={15} aria-hidden="true" />{post.comment_count}</span>
           <LikeButton postId={post.id} likeCount={post.like_count} isLiked={post.liked_by_current_user} />
           {post.user_id === currentUserId ? <DeletePostButton postId={post.id} /> : null}
         </div>
       </footer>
     </div>
+    <CommentSection postId={post.id} comments={post.comments} currentUserId={currentUserId} />
   </article>;
 }
 

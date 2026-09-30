@@ -45,7 +45,7 @@ The visual language borrows from a well-used roadbook and the restrained instrum
 - **Usage scene:** Responsive phone-first feed and account flows riders may use between rides; favor readable posts, short forms, comfortable touch controls, and stable layouts.
 - **Register:** Hybrid public welcome page and focused social feed, create-post, account, and profile screens.
 - **Memorable signature:** A small copper route marker and the road-note metadata rail make each feed entry feel like a rider's log.
-- **Restraint:** Post content and rider identity stay prominent; limit engagement UI to the approved like interaction.
+- **Restraint:** Post content and rider identity stay prominent; limit engagement UI to the approved likes and comments.
 - **Anti-references:** Generic SaaS dashboards, black-on-black racing motifs, faux maps, and hero stock photos.
 - **Token ownership/runtime mapping:** This file mirrors the canonical runtime tokens in `app/globals.css`; it does not generate CSS. Keep the frontmatter colors, radii, and font names aligned with CSS variables and Tailwind theme tokens there.
 
@@ -97,7 +97,7 @@ Use short color and border transitions for hover/focus feedback only. Respect re
 
 ### Content and data visualization
 
-Use warm, road-oriented language without claiming a route or ride exists before data is available. Show feed timestamps in the rider's locale, newest first. Keep engagement counts, recommendations, and charts out of this phase. Give actionable errors and describe exactly which step needs attention.
+Use warm, road-oriented language without claiming a route or ride exists before data is available. Show feed timestamps and comments in chronological order using the rider's locale. Limit engagement counts to approved likes and comments; do not add recommendations or charts. Give actionable errors and describe exactly which step needs attention.
 
 ## Do's and Don'ts
 

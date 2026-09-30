@@ -34,6 +34,14 @@ export type Like = {
   created_at: string;
 };
 
+export type Comment = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+};
+
 type TableDefinition<Row, Insert, Update> = {
   Row: Row;
   Insert: Insert;
@@ -66,10 +74,19 @@ export type Database = {
         Pick<Like, "post_id" | "user_id"> & Partial<Pick<Like, "created_at">>,
         never
       >;
+      comments: TableDefinition<
+        Comment,
+        Pick<Comment, "post_id" | "user_id" | "content"> & Partial<Pick<Comment, "id" | "created_at">>,
+        never
+      >;
     };
     Views: {
       post_likes_summary: {
         Row: { post_id: string; like_count: number; liked_by_current_user: boolean };
+        Relationships: [];
+      };
+      post_comment_counts: {
+        Row: { post_id: string; comment_count: number };
         Relationships: [];
       };
     };

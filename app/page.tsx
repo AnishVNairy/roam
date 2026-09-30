@@ -4,12 +4,18 @@ import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { Wordmark } from "@/components/brand";
 import { PostFeed } from "@/components/post-feed";
-import type { Post, Profile } from "@/lib/supabase/database.types";
+import type { Comment, Post, Profile } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
+
+type FeedComment = Comment & {
+  author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null;
+};
 
 type FeedPost = Post & {
   like_count: number;
   liked_by_current_user: boolean;
+  comment_count: number;
+  comments: FeedComment[];
   author: Pick<Profile, "username" | "display_name" | "avatar_url"> | null;
 };
 
@@ -64,7 +70,35 @@ export default async function Home() {
   }
 
   const rows = posts ?? [];
-  const authorIds = [...new Set(rows.map((post) => post.user_id))];
+  const postIds = rows.map((post) => post.id);
+  let likeSummaries: { post_id: string; like_count: number; liked_by_current_user: boolean }[] = [];
+  let commentCounts: { post_id: string; comment_count: number }[] = [];
+  let commentRows: Comment[] = [];
+
+  if (postIds.length) {
+    const [likesResult, commentsResult, countsResult] = await Promise.all([
+      client.from("post_likes_summary")
+        .select("post_id, like_count, liked_by_current_user")
+        .in("post_id", postIds),
+      client.from("comments")
+        .select("id, post_id, user_id, content, created_at")
+        .in("post_id", postIds)
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true }),
+      client.from("post_comment_counts")
+        .select("post_id, comment_count")
+        .in("post_id", postIds),
+    ]);
+
+    if (likesResult.error || commentsResult.error || countsResult.error) {
+      return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load likes or comments for the home feed. Refresh to try again.</p></FeedFrame>;
+    }
+    likeSummaries = likesResult.data ?? [];
+    commentRows = commentsResult.data ?? [];
+    commentCounts = countsResult.data ?? [];
+  }
+
+  const authorIds = [...new Set([...rows.map((post) => post.user_id), ...commentRows.map((comment) => comment.user_id)])];
   let authors: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">[] = [];
   if (authorIds.length) {
     const { data, error } = await client.from("profiles")
@@ -76,26 +110,23 @@ export default async function Home() {
     authors = data ?? [];
   }
 
-  const postIds = rows.map((post) => post.id);
-  let likeSummaries: { post_id: string; like_count: number; liked_by_current_user: boolean }[] = [];
-  if (postIds.length) {
-    const { data, error } = await client.from("post_likes_summary")
-      .select("post_id, like_count, liked_by_current_user")
-      .in("post_id", postIds);
-    if (error) {
-      return <FeedFrame email={user.email}><p role="alert" className="rounded-panel border border-danger/20 bg-white p-6 text-sm leading-6 text-danger">We couldn&apos;t load likes for the home feed. Refresh to try again.</p></FeedFrame>;
-    }
-    likeSummaries = data ?? [];
-  }
-
   const authorById = new Map(authors.map((author) => [author.id, author]));
   const likeSummaryByPostId = new Map(likeSummaries.map((summary) => [summary.post_id, summary]));
+  const commentCountByPostId = new Map(commentCounts.map((summary) => [summary.post_id, summary.comment_count]));
+  const commentsByPostId = new Map<string, FeedComment[]>();
+  for (const comment of commentRows) {
+    const postComments = commentsByPostId.get(comment.post_id) ?? [];
+    postComments.push({ ...comment, author: authorById.get(comment.user_id) ?? null });
+    commentsByPostId.set(comment.post_id, postComments);
+  }
   const feedPosts: FeedPost[] = rows.map((post) => {
     const likes = likeSummaryByPostId.get(post.id);
     return {
       ...post,
       like_count: likes?.like_count ?? 0,
       liked_by_current_user: likes?.liked_by_current_user ?? false,
+      comment_count: commentCountByPostId.get(post.id) ?? 0,
+      comments: commentsByPostId.get(post.id) ?? [],
       author: authorById.get(post.user_id) ?? null,
     };
   });
