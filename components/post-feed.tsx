@@ -35,10 +35,13 @@ function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: stri
   return <article className="overflow-hidden rounded-panel border border-line bg-white shadow-panel">
     <header className="flex items-center gap-3 px-4 py-4 sm:px-6">
       <RiderAvatar author={post.author} />
-      <div className="min-w-0 flex-1">
+      {post.author ? <Link href={`/riders/${encodeURIComponent(post.author.username)}`} className="min-w-0 flex-1 rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal">
         <p className="truncate text-sm font-semibold text-ink">{post.author?.display_name ?? "ROAM rider"}</p>
         <p className="mt-0.5 truncate text-xs text-muted">@{post.author?.username ?? "rider"}</p>
-      </div>
+      </Link> : <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-ink">ROAM rider</p>
+        <p className="mt-0.5 truncate text-xs text-muted">@rider</p>
+      </div>}
       <time dateTime={post.created_at} className="shrink-0 text-right text-[11px] leading-5 text-muted">{formatPostTime(post.created_at)}</time>
     </header>
     <div className="px-4 pb-5 sm:px-6 sm:pb-6">

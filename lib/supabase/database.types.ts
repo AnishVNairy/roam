@@ -42,6 +42,18 @@ export type Comment = {
   created_at: string;
 };
 
+export type Follow = {
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+};
+
+export type ProfileFollowStats = {
+  followers_count: number;
+  following_count: number;
+  is_following: boolean;
+};
+
 type TableDefinition<Row, Insert, Update> = {
   Row: Row;
   Insert: Insert;
@@ -79,6 +91,11 @@ export type Database = {
         Pick<Comment, "post_id" | "user_id" | "content"> & Partial<Pick<Comment, "id" | "created_at">>,
         never
       >;
+      follows: TableDefinition<
+        Follow,
+        Pick<Follow, "follower_id" | "following_id"> & Partial<Pick<Follow, "created_at">>,
+        never
+      >;
     };
     Views: {
       post_likes_summary: {
@@ -90,7 +107,12 @@ export type Database = {
         Relationships: [];
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      get_profile_follow_stats: {
+        Args: { p_profile_id: string };
+        Returns: ProfileFollowStats[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

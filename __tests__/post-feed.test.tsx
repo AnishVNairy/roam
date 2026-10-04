@@ -22,6 +22,7 @@ describe("PostFeed", () => {
     expect(screen.getByText("@road_rider")).toBeDefined();
     expect(screen.getByText(post.caption)).toBeDefined();
     expect(document.querySelector('time[datetime="2026-09-30T07:30:00.000Z"]')).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Road Rider @road_rider" }).getAttribute("href")).toBe("/riders/road_rider");
   });
 
   it("shows an invitation when the feed is empty", () => {
