@@ -32,7 +32,7 @@ function formatPostTime(value: string) {
 
 function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: string }) {
   const commentLabel = `${post.comment_count} ${post.comment_count === 1 ? "comment" : "comments"}`;
-  return <article className="overflow-hidden rounded-panel border border-line bg-white shadow-panel">
+  return <article id={`post-${post.id}`} className="overflow-hidden rounded-panel border border-line bg-white shadow-panel">
     <header className="flex items-center gap-3 px-4 py-4 sm:px-6">
       <RiderAvatar author={post.author} />
       {post.author ? <Link href={`/riders/${encodeURIComponent(post.author.username)}`} className="min-w-0 flex-1 rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal">

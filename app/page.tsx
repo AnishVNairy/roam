@@ -34,7 +34,9 @@ function FeedFrame({ email, children }: { email?: string | null; children: React
   return <main className="min-h-screen bg-paper"><AppHeader email={email} /><div className="mx-auto max-w-[760px] px-4 py-7 sm:px-8 sm:py-10">{children}</div></main>;
 }
 
-export default async function Home() {
+export default async function Home({ searchParams }: PageProps<"/">) {
+  const { post } = await searchParams;
+  const linkedPostId = typeof post === "string" ? post : null;
   let client;
   try {
     client = await createClient();
@@ -70,6 +72,13 @@ export default async function Home() {
   }
 
   const rows = posts ?? [];
+  if (linkedPostId && !rows.some((post) => post.id === linkedPostId)) {
+    const { data: linkedPost } = await client.from("posts")
+      .select("*")
+      .eq("id", linkedPostId)
+      .maybeSingle();
+    if (linkedPost) rows.unshift(linkedPost);
+  }
   const postIds = rows.map((post) => post.id);
   let likeSummaries: { post_id: string; like_count: number; liked_by_current_user: boolean }[] = [];
   let commentCounts: { post_id: string; comment_count: number }[] = [];

@@ -48,6 +48,17 @@ export type Follow = {
   created_at: string;
 };
 
+export type Notification = {
+  id: string;
+  recipient_id: string;
+  actor_id: string | null;
+  type: "post_like" | "post_comment" | "new_follower";
+  post_id: string | null;
+  comment_id: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
 export type ProfileFollowStats = {
   followers_count: number;
   following_count: number;
@@ -95,6 +106,13 @@ export type Database = {
         Follow,
         Pick<Follow, "follower_id" | "following_id"> & Partial<Pick<Follow, "created_at">>,
         never
+      >;
+      notifications: TableDefinition<
+        Notification,
+        Pick<Notification, "recipient_id" | "type"> &
+          Partial<Pick<Notification, "actor_id">> &
+          Partial<Pick<Notification, "id" | "post_id" | "comment_id" | "read_at" | "created_at">>,
+        Partial<Pick<Notification, "read_at">>
       >;
     };
     Views: {

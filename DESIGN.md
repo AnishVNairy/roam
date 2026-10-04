@@ -45,7 +45,7 @@ The visual language borrows from a well-used roadbook and the restrained instrum
 - **Usage scene:** Responsive phone-first feed and account flows riders may use between rides; favor readable posts, short forms, comfortable touch controls, and stable layouts.
 - **Register:** Hybrid public welcome page and focused social feed, create-post, account, and profile screens.
 - **Memorable signature:** A small copper route marker and the road-note metadata rail make each feed entry feel like a rider's log.
-- **Restraint:** Post content and rider identity stay prominent; limit engagement UI to the approved likes and comments.
+- **Restraint:** Post content and rider identity stay prominent; feed engagement stays focused on likes and comments, with notifications in a separate inbox.
 - **Anti-references:** Generic SaaS dashboards, black-on-black racing motifs, faux maps, and hero stock photos.
 - **Token ownership/runtime mapping:** This file mirrors the canonical runtime tokens in `app/globals.css`; it does not generate CSS. Keep the frontmatter colors, radii, and font names aligned with CSS variables and Tailwind theme tokens there.
 
@@ -81,7 +81,7 @@ Petrol fill is reserved for the main action in a region; bordered white/paper bu
 
 ### Navigation and data display
 
-The public header offers sign-in and account creation. Signed-in navigation links to Home feed, Create post, and Profile; on narrow screens it occupies its own full-width row below the brand and account action. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, optional image, and a compact like control with its count; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
+The public header offers sign-in and account creation. Signed-in navigation links to Home feed, Create post, Notifications with an unread count, and Profile; on narrow screens it occupies its own full-width row below the brand and account action. Auth flows link between login and signup. Profile pages provide a small wordmark header and direct edit action. Feed cards group rider identity, timestamp, caption, optional image, and a compact like control with its count; the empty state leads directly to the create form. A rider card groups identity, location, bio, and motorcycles. Ride discovery is not part of this phase.
 
 ### Forms and overlays
 
@@ -97,7 +97,7 @@ Use short color and border transitions for hover/focus feedback only. Respect re
 
 ### Content and data visualization
 
-Use warm, road-oriented language without claiming a route or ride exists before data is available. Show feed timestamps and comments in chronological order using the rider's locale. Limit engagement counts to approved likes and comments; do not add recommendations or charts. Give actionable errors and describe exactly which step needs attention.
+Use warm, road-oriented language without claiming a route or ride exists before data is available. Show feed timestamps and comments in chronological order using the rider's locale. Limit feed engagement counts to likes and comments; show unread status in the notification inbox and do not add recommendations or charts. Give actionable errors and describe exactly which step needs attention.
 
 ## Do's and Don'ts
 
